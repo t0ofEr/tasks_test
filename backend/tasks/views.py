@@ -4,16 +4,20 @@ from .models import Task
 from .serializers import TaskSerializer
 from .service.ai_service import analyze_task_with_ai
 
+from rest_framework import viewsets, permissions
+
 class TaskViewSet(viewsets.ModelViewSet):
-    queryset = Task.objects.filter(parent_task__isnull=True) # Solo tareas principales
     serializer_class = TaskSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(user=self.request.user, parent_task__isnull=True)
 
     def perform_create(self, serializer):
-        task = serializer.save()
+        task = serializer.save(user=self.request.user)
 
         if not task.parent_task:
             ai_results = analyze_task_with_ai(task.title, task.description)
-            
             task.category = ai_results.get('category', 'General')
             task.save()
 
@@ -22,5 +26,6 @@ class TaskViewSet(viewsets.ModelViewSet):
                 Task.objects.create(
                     title=sub_title,
                     parent_task=task,
+                    user=self.request.user,
                     status='pending'
                 )

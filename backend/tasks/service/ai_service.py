@@ -5,13 +5,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
 def analyze_task_with_ai(title, description):
-    # Configuramos el modelo (asegúrate de tener la KEY en el .env o docker-compose)
+
     llm = ChatOpenAI(
         model="gpt-4o-mini", 
         api_key=os.getenv("OPENAI_API_KEY")
     )
 
-    # Definimos el prompt para clasificación y subtareas
     prompt = ChatPromptTemplate.from_template(
         "Eres un asistente de productividad. Analiza la siguiente tarea:\n"
         "Título: {title}\n"
@@ -21,14 +20,12 @@ def analyze_task_with_ai(title, description):
         "2. 'subtasks': Una lista de máximo 3 pasos cortos para completar la tarea."
     )
 
-    # Cadena de Langchain
     chain = prompt | llm | JsonOutputParser()
 
     try:
         response = chain.invoke({"title": title, "description": description})
         print("--- RESPUESTA DE LA IA ---")
-        print(response) # Esto saldrá en tu terminal de Docker
-        print("--- INTENTANDO LLAMAR A LA IA ---", flush=True)
+        print(response)
         return response
     except Exception as e:
         print(f"--- FALLO IA ({e}). ACTIVANDO MOCK ---", flush=True)

@@ -49,19 +49,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# BASE DE DATOS POSTGRES (Configurada para Docker)
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'taskdb',
         'USER': 'user',
         'PASSWORD': 'pass',
-        'HOST': 'db', # Nombre del servicio en docker-compose
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = [] # Simplificado para la prueba
+AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'es-es'
 TIME_ZONE = 'UTC'
@@ -71,5 +79,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CONFIGURACIÓN CORS (Crucial para React)
-CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+CORS_ALLOW_CREDENTIALS = True
